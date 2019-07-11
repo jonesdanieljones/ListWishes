@@ -2,21 +2,13 @@
 
 namespace ListWishes.Domain.Core.Models
 {
-    public abstract class Entity<T> : AbstractValidator<T> where T : Entity<T>
+    public abstract class Entity
     {
-        protected Entity()
-        {
-            ValidationResult = new ValidationResult();
-        }
-
         public Guid Id { get; protected set; }
-
-        public abstract bool EhValido();
-        public ValidationResult ValidationResult { get; protected set; }
 
         public override bool Equals(object obj)
         {
-            var compareTo = obj as Entity<T>;
+            var compareTo = obj as Entity;
 
             if (ReferenceEquals(this, compareTo)) return true;
             if (ReferenceEquals(null, compareTo)) return false;
@@ -24,7 +16,7 @@ namespace ListWishes.Domain.Core.Models
             return Id.Equals(compareTo.Id);
         }
 
-        public static bool operator ==(Entity<T> a, Entity<T> b)
+        public static bool operator ==(Entity a, Entity b)
         {
             if (ReferenceEquals(a, null) && ReferenceEquals(b, null))
                 return true;
@@ -35,7 +27,7 @@ namespace ListWishes.Domain.Core.Models
             return a.Equals(b);
         }
 
-        public static bool operator !=(Entity<T> a, Entity<T> b)
+        public static bool operator !=(Entity a, Entity b)
         {
             return !(a == b);
         }
@@ -47,7 +39,7 @@ namespace ListWishes.Domain.Core.Models
 
         public override string ToString()
         {
-            return GetType().Name + "[Id = " + Id + "]";
+            return GetType().Name + " [Id=" + Id + "]";
         }
     }
 }
