@@ -1,7 +1,4 @@
-﻿using ListWishes.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ListWishes.Domain.Models;
 
 namespace ListWishes.Domain.Interfaces
 {

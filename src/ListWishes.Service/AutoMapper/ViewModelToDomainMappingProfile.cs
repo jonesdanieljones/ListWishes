@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using ListWishes.Application.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using ListWishes.Domain.Commands;
 
 namespace ListWishes.Application.AutoMapper
 {
@@ -10,10 +8,10 @@ namespace ListWishes.Application.AutoMapper
     {
         public ViewModelToDomainMappingProfile()
         {
-            CreateMap<UserViewModel, RegisterNewCustomerCommand>()
-                .ConstructUsing(c => new RegisterNewCustomerCommand(c.Name, c.Email, c.BirthDate));
-            CreateMap<CustomerViewModel, UpdateCustomerCommand>()
-                .ConstructUsing(c => new UpdateCustomerCommand(c.Id, c.Name, c.Email, c.BirthDate));
+            CreateMap<UserViewModel, RegisterNewUserCommand>()
+                .ConstructUsing(c => new RegisterNewUserCommand(c.Name, c.Email));
+            CreateMap<UserViewModel, UpdateUserCommand>()
+                .ConstructUsing(c => new UpdateUserCommand(c.Id, c.Name, c.Email));
         }
     }
 }

@@ -1,102 +1,80 @@
-﻿using ListWishes.Domain.Entities;
-using ListWishes.Service.Services;
-using ListWishes.Service.Validators;
+﻿using AutoMapper;
+using ListWishes.Application.Interfaces;
+using ListWishes.Application.ViewModels;
+using ListWishes.Domain.Core.Bus;
+using ListWishes.Domain.Core.Notifications;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 
 namespace ListWishes.Application.Controllers
 {
-    [Route("/api/products")]
-    [Produces("application/json")]
-    [ApiController]
-    public class ProductsController : Controller
+    public class ProductController : ApiController
     {
-        private readonly IProductService _productService;
-        private readonly IMapper _mapper;
+        private readonly IProductAppService _productAppService;
 
-        public ProductsController(IProductService productService, IMapper mapper)
+        public ProductController(
+            IProductAppService productAppService,
+            INotificationHandler<DomainNotification> notifications,
+            IMediatorHandler mediator) : base(notifications, mediator)
         {
-            _productService = productService;
-            _mapper = mapper;
+            _productAppService = productAppService;
         }
 
-        /// <summary>
-        /// Lists all existing products.
-        /// </summary>
-        /// <returns>List of products.</returns>
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<ProductResource>), 200)]
-        public async Task<IEnumerable<ProductResource>> ListAsync([FromQuery] int? categoryId)
+        [HttpGet]        
+        [Route("customer-management")]
+        public IActionResult Get()
         {
-            var products = await _productService.ListAsync(categoryId);
-            var resources = _mapper.Map<IEnumerable<Product>, IEnumerable<ProductResource>>(products);
-            return resources;
+            return Response(_productAppService.GetAll());
         }
 
-        /// <summary>
-        /// Saves a new product.
-        /// </summary>
-        /// <param name="resource">Product data.</param>
-        /// <returns>Response for the request.</returns>
-        [HttpPost]
-        [ProducesResponseType(typeof(ProductResource), 201)]
-        [ProducesResponseType(typeof(ErrorResource), 400)]
-        public async Task<IActionResult> PostAsync([FromBody] SaveProductResource resource)
+        [HttpGet]        
+        [Route("customer-management/{id:guid}")]
+        public IActionResult Get(Guid id)
         {
-            var product = _mapper.Map<SaveProductResource, Product>(resource);
-            var result = await _productService.SaveAsync(product);
+            var productViewModel = _productAppService.GetById(id);
 
-            if (!result.Success)
+            return Response(productViewModel);
+        }
+
+        [HttpPost]        
+        [Route("customer-management")]
+        public IActionResult Post([FromBody]ProductViewModel productViewModel)
+        {
+            if (!ModelState.IsValid)
             {
-                return BadRequest(new ErrorResource(result.Message));
+                NotifyModelStateErrors();
+                return Response(productViewModel);
             }
 
-            var productResource = _mapper.Map<Product, ProductResource>(result.Product);
-            return Ok(productResource);
+            _productAppService.Register(productViewModel);
+
+            return Response(productViewModel);
         }
 
-        /// <summary>
-        /// Updates an existing product according to an identifier.
-        /// </summary>
-        /// <param name="id">Product identifier.</param>
-        /// <param name="resource">Product data.</param>
-        /// <returns>Response for the request.</returns>
-        [HttpPut("{id}")]
-        [ProducesResponseType(typeof(ProductResource), 201)]
-        [ProducesResponseType(typeof(ErrorResource), 400)]
-        public async Task<IActionResult> PutAsync(int id, [FromBody] SaveProductResource resource)
+        [HttpPut]        
+        [Route("customer-management")]
+        public IActionResult Put([FromBody]ProductViewModel productViewModel)
         {
-            var product = _mapper.Map<SaveProductResource, Product>(resource);
-            var result = await _productService.UpdateAsync(id, product);
-
-            if (!result.Success)
+            if (!ModelState.IsValid)
             {
-                return BadRequest(new ErrorResource(result.Message));
+                NotifyModelStateErrors();
+                return Response(productViewModel);
             }
 
-            var productResource = _mapper.Map<Product, ProductResource>(result.Product);
-            return Ok(productResource);
+            _productAppService.Update(productViewModel);
+
+            return Response(productViewModel);
         }
 
-        /// <summary>
-        /// Deletes a given product according to an identifier.
-        /// </summary>
-        /// <param name="id">Product identifier.</param>
-        /// <returns>Response for the request.</returns>
-        [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(ProductResource), 200)]
-        [ProducesResponseType(typeof(ErrorResource), 400)]
-        public async Task<IActionResult> DeleteAsync(int id)
+        [HttpDelete]        
+        [Route("customer-management")]
+        public IActionResult Delete(Guid id)
         {
-            var result = await _productService.DeleteAsync(id);
+            _productAppService.Remove(id);
 
-            if (!result.Success)
-            {
-                return BadRequest(new ErrorResource(result.Message));
-            }
-
-            var categoryResource = _mapper.Map<Product, ProductResource>(result.Product);
-            return Ok(categoryResource);
-        }
+            return Response();
+        }        
     }
 }

@@ -1,98 +1,84 @@
-﻿using ListWishes.Domain.Entities;
-using ListWishes.Service.Services;
-using ListWishes.Service.Validators;
+﻿using ListWishes.Application.Interfaces;
+using ListWishes.Application.ViewModels;
+using ListWishes.Domain.Core.Bus;
+using ListWishes.Domain.Core.Notifications;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
 namespace ListWishes.Application.Controllers
 {
-    [Produces("application/json")]
-    [Route("users/")]
-    public class UserController : Controller
+    public class UserController : ApiController
     {
-        private BaseService<User> service = new BaseService<User>();
-        /*
-        public IActionResult Post([FromBody] User item)
-        {
-            try
-            {
-                service.Post<UserValidator>(item);
+        private readonly IUserAppService _userAppService;
 
-                return new ObjectResult(item.Id);
-            }
-            catch(ArgumentNullException ex)
-            {
-                return NotFound(ex);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
+        public UserController(
+            IUserAppService userAppService,
+            INotificationHandler<DomainNotification> notifications,
+            IMediatorHandler mediator) : base(notifications, mediator)
+        {
+            _userAppService = userAppService;
         }
 
-        public IActionResult Put([FromBody] User item)
-        {
-            try
-            {
-                service.Put<UserValidator>(item);
-
-                return new ObjectResult(item);
-            }
-            catch(ArgumentNullException ex)
-            {
-                return NotFound(ex);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
-
-        public IActionResult Delete(int id)
-        {
-            try
-            {
-                service.Delete(id);
-
-                return new NoContentResult();
-            }
-            catch(ArgumentException ex)
-            {
-                return NotFound(ex);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
-        */
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("customer-management")]
         public IActionResult Get()
         {
-            try
-            {
-                return new ObjectResult(service.Get());
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
+            return Response(_userAppService.GetAll());
         }
-        /*
-        public IActionResult Get(int id)
+
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("customer-management/{id:guid}")]
+        public IActionResult Get(Guid id)
         {
-            try
-            {
-                return new ObjectResult(service.Get(id));
-            }
-            catch(ArgumentException ex)
-            {
-                return NotFound(ex);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
+            var userViewModel = _userAppService.GetById(id);
+
+            return Response(userViewModel);
         }
-        */
+
+        [HttpPost]
+        [Authorize(Policy = "CanWriteCustomerData")]
+        [Route("customer-management")]
+        public IActionResult Post([FromBody]UserViewModel userViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                NotifyModelStateErrors();
+                return Response(userViewModel);
+            }
+
+            _userAppService.Register(userViewModel);
+
+            return Response(userViewModel);
+        }
+
+        [HttpPut]
+        [Authorize(Policy = "CanWriteCustomerData")]
+        [Route("customer-management")]
+        public IActionResult Put([FromBody]UserViewModel userViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                NotifyModelStateErrors();
+                return Response(userViewModel);
+            }
+
+            _userAppService.Update(userViewModel);
+
+            return Response(userViewModel);
+        }
+
+        [HttpDelete]
+        [Authorize(Policy = "CanRemoveCustomerData")]
+        [Route("customer-management")]
+        public IActionResult Delete(Guid id)
+        {
+            _userAppService.Remove(id);
+
+            return Response();
+        }        
     }
 }

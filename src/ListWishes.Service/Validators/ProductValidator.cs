@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using ListWishes.Domain.Entities;
+using ListWishes.Domain.Models;
 using System;
 
 namespace ListWishes.Service.Validators

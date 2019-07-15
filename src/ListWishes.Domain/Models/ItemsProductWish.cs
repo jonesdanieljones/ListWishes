@@ -7,14 +7,16 @@ namespace ListWishes.Domain.Models
 {
     public class ItemsProductWish : Entity
     {
-        public ItemsProductWish(Guid id, int productId)
+        public ItemsProductWish(Guid id, Guid productId, Guid wishId)
         {
             Id = id;
             ProductId = productId;
-        }
+            WishId = wishId;
+        }      
         // Empty constructor for EF
-        protected ItemsProductWish() { }
-        public int WishId { get; set; }
-        public int ProductId { get; set; }        
+        protected ItemsProductWish() { }           
+        public Guid? ProductId { get; private set; }
+        public Guid? WishId { get; private set; }
+        public virtual Product Product { get; private set; }
     }
 }

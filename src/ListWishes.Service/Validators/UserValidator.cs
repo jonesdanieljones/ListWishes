@@ -1,8 +1,6 @@
 ﻿using FluentValidation;
-using ListWishes.Domain.Entities;
+using ListWishes.Domain.Models;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ListWishes.Service.Validators
 {

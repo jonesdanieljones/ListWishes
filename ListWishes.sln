@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ListWishes.Infra.Data", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ListWishes.Infra.CrossCutting", "src\ListWishes.Infra.CrossCutting\ListWishes.Infra.CrossCutting.csproj", "{DB868361-86CD-4264-9B13-35F6DD2CC9C2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ListWishes.Application.Api", "src\ListWishes.Application\ListWishes.Application.Api.csproj", "{EB1CC407-C6F4-4B21-B4F2-B18256143AD7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ListWishes.Services.Api", "src\ListWishes.Application\ListWishes.Services.Api.csproj", "{EB1CC407-C6F4-4B21-B4F2-B18256143AD7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7CE21645-0BF7-46FA-AB94-8E09DEC0CC0E}"
 EndProject
@@ -31,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ListWishes.Infra.CrossCutti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ListWishes.Infra.CrossCutting.Bus", "src\ListWishes.Infra.CrossCutting.Bus\ListWishes.Infra.CrossCutting.Bus.csproj", "{964FD7AD-C847-488A-9B33-B42D133B8D2A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ListWishes.Domain.Core", "src\ListWishes.Domain.Core\ListWishes.Domain.Core.csproj", "{B3A754A2-F395-441C-845E-74B22CBE232B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ListWishes.Domain.Core", "src\ListWishes.Domain.Core\ListWishes.Domain.Core.csproj", "{B3A754A2-F395-441C-845E-74B22CBE232B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

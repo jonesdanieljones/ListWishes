@@ -1,15 +1,13 @@
-﻿using ListWishes.Domain.Entities;
-using ListWishes.Service.Services;
-using ListWishes.Service.Validators;
+﻿using ListWishes.Service.Validators;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
 namespace ListWishes.Application.Controllers
 {
-    [Produces("application/json")]
-    [Route("api/ListaDesejo")]
-    public class WishController : Controller
+    public class WishController : ApiController
     {
+        private readonly IWishAppService _customerAppService;
+
         private BaseService<Wish> service = new BaseService<Wish>();
 
         public IActionResult Post([FromBody] Wish item)

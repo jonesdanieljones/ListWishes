@@ -1,9 +1,6 @@
 ﻿using AutoMapper;
 using ListWishes.Application.ViewModels;
-using ListWishes.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using ListWishes.Domain.Models;
 
 namespace ListWishes.Application.AutoMapper
 {

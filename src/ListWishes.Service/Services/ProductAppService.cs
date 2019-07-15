@@ -1,8 +1,12 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using ListWishes.Application.Interfaces;
+using ListWishes.Application.ViewModels;
+using ListWishes.Domain.Commands;
+using ListWishes.Domain.Core.Bus;
+using ListWishes.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ListWishes.Application.Services
 {
@@ -12,40 +16,40 @@ namespace ListWishes.Application.Services
         private readonly IProductRepository _productRepository;        
         private readonly IMediatorHandler Bus;
 
-        public UserAppService(IMapper mapper,
-                              IUserRepository userRepository,
+        public ProductAppService(IMapper mapper,
+                              IProductRepository productRepository,
                               IMediatorHandler bus
                               )
         {
             _mapper = mapper;
-            _userRepository = userRepository;
+            _productRepository = productRepository;
             Bus = bus;
         }
 
-        public IEnumerable<UserViewModel> GetAll()
+        public IEnumerable<ProductViewModel> GetAll()
         {
-            return _userRepository.GetAll().ProjectTo<UserViewModel>(_mapper.ConfigurationProvider);
+            return _productRepository.GetAll().ProjectTo<ProductViewModel>(_mapper.ConfigurationProvider);
         }
 
-        public UserViewModel GetById(Guid id)
+        public ProductViewModel GetById(Guid id)
         {
-            return _mapper.Map<UserViewModel>(_userRepository.GetById(id));
+            return _mapper.Map<ProductViewModel>(_productRepository.GetById(id));
         }
 
-        public void Register(UserViewModel userViewModel)
+        public void Register(ProductViewModel productViewModel)
         {
-            var registerCommand = _mapper.Map<RegisterNewUserCommand>(userViewModel);
+            var registerCommand = _mapper.Map<RegisterNewProductCommand>(productViewModel);
             Bus.SendCommand(registerCommand);
         }
 
-        public void Update(UserViewModel customerViewModel)
+        public void Update(ProductViewModel productViewModel)
         {
-            var updateCommand = _mapper.Map<UpdateUserCommand>(customerViewModel);
+            var updateCommand = _mapper.Map<UpdateProductCommand>(productViewModel);
             Bus.SendCommand(updateCommand);
         }
         public void Remove(Guid id)
         {
-            var removeCommand = new RemoveUserCommand(id);
+            var removeCommand = new RemoveProductCommand(id);
             Bus.SendCommand(removeCommand);
         }
         public void Dispose()

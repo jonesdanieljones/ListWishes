@@ -1,4 +1,5 @@
 ﻿using ListWishes.Domain.Entities;
+using ListWishes.Domain.Models;
 using ListWishes.Infra.Data.Mapping;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

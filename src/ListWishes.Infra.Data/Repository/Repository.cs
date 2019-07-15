@@ -1,4 +1,4 @@
-﻿using ListWishes.Domain.Interfaces.Repository.Common;
+﻿using ListWishes.Domain.Interfaces;
 using ListWishes.Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using System;

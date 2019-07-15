@@ -1,4 +1,4 @@
-﻿using ListWishes.Domain.Entities;
+﻿using ListWishes.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

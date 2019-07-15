@@ -10,9 +10,7 @@ using ListWishes.Domain.Events;
 using ListWishes.Domain.Interfaces;
 using ListWishes.Infra.CrossCutting.Bus;
 using ListWishes.Infra.Data.Context;
-using ListWishes.Infra.Data.EventSourcing;
 using ListWishes.Infra.Data.Repository;
-using ListWishes.Infra.Data.Repository.EventSourcing;
 using ListWishes.Infra.Data.UoW;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -29,13 +27,10 @@ namespace ListWishes.Infra.CrossCutting.IoC
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             // Domain Bus (Mediator)
-            services.AddScoped<IMediatorHandler, InMemoryBus>();
-
-            // ASP.NET Authorization Polices
-            services.AddSingleton<IAuthorizationHandler, ClaimsRequirementHandler>();
+            services.AddScoped<IMediatorHandler, InMemoryBus>();            
 
             // Application
-            services.AddScoped<ICustomerAppService, CustomerAppService>();
+            services.AddScoped<IUserAppService, UserAppService>();
 
             // Domain - Events
             services.AddScoped<INotificationHandler<DomainNotification>, DomainNotificationHandler>();
@@ -49,21 +44,13 @@ namespace ListWishes.Infra.CrossCutting.IoC
             services.AddScoped<IRequestHandler<RemoveUserCommand, bool>, UserCommandHandler>();
 
             // Infra - Data
-            services.AddScoped<IUserRepository, CustomerRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IWishRepository, WishRepository>();
+            services.AddScoped<IItemsProductWishRepository,ItemsProductWishRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<EquinoxContext>();
-
-            // Infra - Data EventSourcing
-            services.AddScoped<IEventStoreRepository, EventStoreSQLRepository>();
-            services.AddScoped<IEventStore, SqlEventStore>();
-            services.AddScoped<EventStoreSQLContext>();
-
-            // Infra - Identity Services
-            services.AddTransient<IEmailSender, AuthEmailMessageSender>();
-            services.AddTransient<ISmsSender, AuthSMSMessageSender>();
-
-            // Infra - Identity
-            services.AddScoped<IUser, AspNetUser>();
+            services.AddScoped<ListWishesContext>();
+            
         }
     }
 }

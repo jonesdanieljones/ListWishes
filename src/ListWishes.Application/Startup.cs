@@ -1,73 +1,65 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using ListWishes.Infra.CrossCutting.IoC;
+using ListWishes.Services.Api.Configurations;
+using MediatR;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
-using System;
-using System.IO;
-using System.Reflection;
-namespace ListWishes.Application
+
+namespace ListWishes.Services.Api
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
         public IConfiguration Configuration { get; }
+
+        public Startup(IHostingEnvironment env)
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", true, true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
+
+            if (env.IsDevelopment())
+            {
+                builder.AddUserSecrets<Startup>();
+            }
+
+            builder.AddEnvironmentVariables();
+            Configuration = builder.Build();
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMemoryCache();
-
-            services.AddSwaggerGen(cfg =>
+            services.AddMvc(options =>
             {
-                cfg.SwaggerDoc("v1", new Info
-                {
-                    Title = "Wish API",
-                    Version = "v1.1",
-                    Description = "Simple RESTful API built with ASP.NET Core 2.2 to show how to create RESTful services using a decoupled, maintainable architecture.",
-                    Contact = new Contact
-                    {
-                        Name = "Evandro Gayer Gomes",
-                        Url = "https://github.com/evgomes",
-                    },
-                    License = new License
-                    {
-                        Name = "MIT",
-                    },
-                });
+                options.OutputFormatters.Remove(new XmlDataContractSerializerOutputFormatter());
+                options.UseCentralRoutePrefix(new RouteAttribute("api/v{version}"));
+            })
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                cfg.IncludeXmlComments(xmlPath);
+            services.AddAutoMapperSetup();
+
+            services.AddSwaggerGen(s =>
+            {
+                s.SwaggerDoc("v1", new Info
+                {
+                    Version = "v1",
+                    Title = "Lista Whishes",
+                    Description = "List Whishes API Swagger surface",
+                    Contact = new Contact { Name = "Jones Daniel", Email = "jonesdaniel.jones@gmail.com"},
+                    License = new License { Name = "MIT", Url = "https://github.com/jonesdanieljones/ListWishes" }
+                });
             });
 
-            services.AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_0)
-                .ConfigureApiBehaviorOptions(options =>
-                {
-                    // Adds a custom error response factory when ModelState is invalid
-                    options.InvalidModelStateResponseFactory = InvalidModelStateResponseFactory.ProduceErrorResponse;
-                });
+            // Adding MediatR for Domain Events and Notifications
+            services.AddMediatR(typeof(Startup));
 
-            services.AddDbContext<AppDbContext>(options =>
-            {
-                options.UseInMemoryDatabase("supermarket-api-in-memory");
-            });
-
-            services.AddScoped<ICategoryRepository, CategoryRepository>();
-            services.AddScoped<IProductRepository, ProductRepository>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-            services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<IProductService, ProductService>();
-
-            services.AddAutoMapper();
+            // .NET Native DI Abstraction
+            RegisterServices(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -79,19 +71,32 @@ namespace ListWishes.Application
             }
             else
             {
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
-
-            app.UseSwagger();
-
-            app.UseSwaggerUI(c =>
+            app.UseCors(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ListWishes API");
+                c.AllowAnyHeader();
+                c.AllowAnyMethod();
+                c.AllowAnyOrigin();
             });
 
+            app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseMvc();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(s =>
+            {
+                s.SwaggerEndpoint("/swagger/v1/swagger.json", "Equinox Project API v1.1");
+            });
         }
-    }
+
+        private static void RegisterServices(IServiceCollection services)
+        {
+            // Adding dependencies from another layers (isolated from Presentation)
+            NativeInjectorBootStrapper.RegisterServices(services);
+        }
+    }    
 }

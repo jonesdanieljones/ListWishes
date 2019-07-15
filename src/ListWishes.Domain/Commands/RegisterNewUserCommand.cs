@@ -1,5 +1,4 @@
-﻿using System;
-using ListWishes.Domain.Validations;
+﻿using ListWishes.Domain.Validations;
 
 namespace ListWishes.Domain.Commands
 {

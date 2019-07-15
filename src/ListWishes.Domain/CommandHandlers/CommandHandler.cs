@@ -1,5 +1,4 @@
-﻿using ListWishes.Domain.Interfaces;
-using ListWishes.Domain.Core.Bus;
+﻿using ListWishes.Domain.Core.Bus;
 using ListWishes.Domain.Core.Commands;
 using ListWishes.Domain.Core.Notifications;
 using ListWishes.Domain.Interfaces;
@@ -22,7 +21,10 @@ namespace ListWishes.Domain.CommandHandlers
 
         protected void NotifyValidationErrors(Command message)
         {
-            _bus.RaiseEvent(new DomainNotification(message.MessageType, message.ValidationResult.ErrorMessage));            
+            foreach (var error in message.ValidationResult.Errors)
+            {
+                _bus.RaiseEvent(new DomainNotification(message.MessageType, error.ErrorMessage));
+            }            
         }
 
         public bool Commit()

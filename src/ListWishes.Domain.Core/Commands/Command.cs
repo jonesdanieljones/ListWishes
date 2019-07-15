@@ -1,6 +1,7 @@
-﻿using ListWishes.Domain.Core.Events;
+﻿using FluentValidation.Results;
+using ListWishes.Domain.Core.Events;
 using System;
-using System.ComponentModel.DataAnnotations;
+
 
 namespace ListWishes.Domain.Core.Commands
 {
