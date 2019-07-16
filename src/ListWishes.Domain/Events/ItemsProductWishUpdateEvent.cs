@@ -4,13 +4,13 @@ using ListWishes.Domain.Core.Events;
 namespace Eventos.IO.Domain.Eventos.Events
 {
     public class ItemsProductWishUpdateEvent : Event
-    {
-        public Guid Id { get; private set; }
-      
-        public ItemsProductWishUpdateEvent(Guid wishidId, Guid productId)
+    {        
+  
+        public ItemsProductWishUpdateEvent(Guid id)
         {
-            Id = wishidId;
-            AggregateId = productId;
+            Id = id;
+            AggregateId = id;
         }
+        public Guid Id { get; private set; }
     }
 }

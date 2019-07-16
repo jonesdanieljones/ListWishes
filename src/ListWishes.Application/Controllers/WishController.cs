@@ -1,4 +1,9 @@
-﻿using ListWishes.Service.Validators;
+﻿using ListWishes.Application.Interfaces;
+using ListWishes.Application.ViewModels;
+using ListWishes.Domain.Core.Bus;
+using ListWishes.Domain.Core.Notifications;
+using ListWishes.Service.Validators;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -6,90 +11,69 @@ namespace ListWishes.Application.Controllers
 {
     public class WishController : ApiController
     {
-        private readonly IWishAppService _customerAppService;
+        private readonly IWishAppService _wishAppService;
 
-        private BaseService<Wish> service = new BaseService<Wish>();
-
-        public IActionResult Post([FromBody] Wish item)
+        public WishController(
+            IWishAppService wishAppService,
+            INotificationHandler<DomainNotification> notifications,
+            IMediatorHandler mediator) : base(notifications, mediator)
         {
-            try
-            {
-                service.Post<WishValidator>(item);
-
-                return new ObjectResult(item.Id);
-            }
-            catch(ArgumentNullException ex)
-            {
-                return NotFound(ex);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
+            _wishAppService = wishAppService;
         }
 
-        public IActionResult Put([FromBody] Wish item)
-        {
-            try
-            {
-                service.Put<WishValidator>(item);
-
-                return new ObjectResult(item);
-            }
-            catch(ArgumentNullException ex)
-            {
-                return NotFound(ex);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
-
-        public IActionResult Delete(int id)
-        {
-            try
-            {
-                service.Delete(id);
-
-                return new NoContentResult();
-            }
-            catch(ArgumentException ex)
-            {
-                return NotFound(ex);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
-
+        [HttpGet]
+        [Route("wish")]
         public IActionResult Get()
         {
-            try
-            {
-                return new ObjectResult(service.Get());
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
+            return Response(_wishAppService.GetAll());
         }
 
-        public IActionResult Get(int id)
+        [HttpGet]
+        [Route("wish/{id:guid}")]
+        public IActionResult Get(Guid id)
         {
-            try
+            var productViewModel = _wishAppService.GetById(id);
+
+            return Response(productViewModel);
+        }
+
+        [HttpPost]
+        [Route("wish")]
+        public IActionResult Post([FromBody]WishViewModel wishViewModel)
+        {
+            if (!ModelState.IsValid)
             {
-                return new ObjectResult(service.Get(id));
+                NotifyModelStateErrors();
+                return Response(wishViewModel);
             }
-            catch(ArgumentException ex)
+
+            _wishAppService.Register(wishViewModel);
+
+            return Response(wishViewModel);
+        }
+
+        [HttpPut]
+        [Route("wish")]
+        public IActionResult Put([FromBody]WishViewModel wishViewModel)
+        {
+            if (!ModelState.IsValid)
             {
-                return NotFound(ex);
+                NotifyModelStateErrors();
+                return Response(wishViewModel);
             }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
+
+            _wishAppService.Update(wishViewModel);
+
+            return Response(wishViewModel);
+        }
+
+        [HttpDelete]
+        [Route("wish")]
+        public IActionResult Delete(Guid id)
+        {
+            _wishAppService.Remove(id);
+
+            return Response();
         }
     }
 }

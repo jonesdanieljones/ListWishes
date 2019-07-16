@@ -23,7 +23,7 @@ namespace ListWishes.Application.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        [Route("customer-management")]
+        [Route("user")]
         public IActionResult Get()
         {
             return Response(_userAppService.GetAll());
@@ -31,7 +31,7 @@ namespace ListWishes.Application.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        [Route("customer-management/{id:guid}")]
+        [Route("user/{id:guid}")]
         public IActionResult Get(Guid id)
         {
             var userViewModel = _userAppService.GetById(id);
@@ -40,8 +40,7 @@ namespace ListWishes.Application.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "CanWriteCustomerData")]
-        [Route("customer-management")]
+        [Route("user")]
         public IActionResult Post([FromBody]UserViewModel userViewModel)
         {
             if (!ModelState.IsValid)
@@ -55,9 +54,8 @@ namespace ListWishes.Application.Controllers
             return Response(userViewModel);
         }
 
-        [HttpPut]
-        [Authorize(Policy = "CanWriteCustomerData")]
-        [Route("customer-management")]
+        [HttpPut]        
+        [Route("user")]
         public IActionResult Put([FromBody]UserViewModel userViewModel)
         {
             if (!ModelState.IsValid)
@@ -71,9 +69,8 @@ namespace ListWishes.Application.Controllers
             return Response(userViewModel);
         }
 
-        [HttpDelete]
-        [Authorize(Policy = "CanRemoveCustomerData")]
-        [Route("customer-management")]
+        [HttpDelete]        
+        [Route("user")]
         public IActionResult Delete(Guid id)
         {
             _userAppService.Remove(id);

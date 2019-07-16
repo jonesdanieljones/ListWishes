@@ -22,15 +22,15 @@ namespace ListWishes.Application.Controllers
             _productAppService = productAppService;
         }
 
-        [HttpGet]        
-        [Route("customer-management")]
+        [HttpGet]
+        [Route("product")]
         public IActionResult Get()
         {
             return Response(_productAppService.GetAll());
         }
 
-        [HttpGet]        
-        [Route("customer-management/{id:guid}")]
+        [HttpGet]
+        [Route("product/{id:guid}")]
         public IActionResult Get(Guid id)
         {
             var productViewModel = _productAppService.GetById(id);
@@ -38,8 +38,8 @@ namespace ListWishes.Application.Controllers
             return Response(productViewModel);
         }
 
-        [HttpPost]        
-        [Route("customer-management")]
+        [HttpPost]
+        [Route("product")]
         public IActionResult Post([FromBody]ProductViewModel productViewModel)
         {
             if (!ModelState.IsValid)
@@ -53,8 +53,8 @@ namespace ListWishes.Application.Controllers
             return Response(productViewModel);
         }
 
-        [HttpPut]        
-        [Route("customer-management")]
+        [HttpPut]
+        [Route("product")]
         public IActionResult Put([FromBody]ProductViewModel productViewModel)
         {
             if (!ModelState.IsValid)
@@ -68,13 +68,13 @@ namespace ListWishes.Application.Controllers
             return Response(productViewModel);
         }
 
-        [HttpDelete]        
-        [Route("customer-management")]
+        [HttpDelete]
+        [Route("product")]
         public IActionResult Delete(Guid id)
         {
             _productAppService.Remove(id);
 
             return Response();
-        }        
+        }
     }
 }

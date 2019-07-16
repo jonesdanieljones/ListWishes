@@ -1,22 +1,20 @@
 ﻿using ListWishes.Domain.Core.Models;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ListWishes.Domain.Models
 {
     public class ItemsProductWish : Entity
     {
-        public ItemsProductWish(Guid id, Guid productId, Guid wishId)
+        public ItemsProductWish(Guid id, Guid? wishId, Guid? productId)
         {
-            Id = id;
-            ProductId = productId;
+            Id = id;            
             WishId = wishId;
+            ProductId = productId;
         }      
         // Empty constructor for EF
-        protected ItemsProductWish() { }           
-        public Guid? ProductId { get; private set; }
+        protected ItemsProductWish() { }
         public Guid? WishId { get; private set; }
+        public Guid? ProductId { get; private set; }        
         public virtual Product Product { get; private set; }
     }
 }

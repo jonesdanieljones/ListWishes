@@ -1,10 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ListWishes.Domain.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ListWishes.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using ListWishes.Domain.Models;
 
 namespace ListWishes.Infra.Data.Mapping
 {

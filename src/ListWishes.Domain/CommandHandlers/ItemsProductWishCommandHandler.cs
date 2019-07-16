@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Eventos.IO.Domain.Eventos.Events;
 using ListWishes.Domain.Commands;
 using ListWishes.Domain.Core.Bus;
 using ListWishes.Domain.Core.Notifications;
@@ -12,23 +13,23 @@ using MediatR;
 namespace ListWishes.Domain.CommandHandlers
 {
     public class ItemsProductWishCommandHandler : CommandHandler,
-        IRequestHandler<RegisterNewWishCommand, bool>,
-        IRequestHandler<UpdateWishCommand, bool>,
-        IRequestHandler<RemoveWishCommand, bool>
+        IRequestHandler<RegisterNewItemsProductWishCommand, bool>,
+        IRequestHandler<UpdateItemsProductWishCommand, bool>,
+        IRequestHandler<RemoveItemsProductWishCommand, bool>
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IItemsProductWishRepository _itemsProductWishRepository;
         private readonly IMediatorHandler Bus;
 
-        public ItemsProductWishCommandHandler(IUserRepository userRepository, 
+        public ItemsProductWishCommandHandler(IItemsProductWishRepository itemsProductWishRepository, 
                                       IUnitOfWork uow,
                                       IMediatorHandler bus,
                                       INotificationHandler<DomainNotification> notifications) :base(uow, bus, notifications)
         {
-            _userRepository = userRepository;
+            _itemsProductWishRepository = itemsProductWishRepository;
             Bus = bus;
         }
 
-        public Task<bool> Handle(RegisterNewUserCommand message, CancellationToken cancellationToken)
+        public Task<bool> Handle(RegisterNewItemsProductWishCommand message, CancellationToken cancellationToken)
         {
             if (!message.IsValid())
             {
@@ -36,25 +37,19 @@ namespace ListWishes.Domain.CommandHandlers
                 return Task.FromResult(false);
             }
 
-            var user = new User(Guid.NewGuid(), message.Name, message.Email);
+            var itemsProductWish = new ItemsProductWish(Guid.NewGuid(), message.ProductId, message.WishId);
 
-            if (_userRepository.GetByEmail(user.Email) != null)
-            {
-                Bus.RaiseEvent(new DomainNotification(message.MessageType, "The customer e-mail has already been taken."));
-                return Task.FromResult(false);
-            }
-
-            _userRepository.Add(user);
+            _itemsProductWishRepository.Add(itemsProductWish);
 
             if (Commit())
             {
-                Bus.RaiseEvent(new UserRegisteredEvent(user.Id, user.Name, user.Email));
+                Bus.RaiseEvent(new ItemsProductWishRegisteredEvent(itemsProductWish.Id, itemsProductWish.WishId, itemsProductWish.ProductId));
             }
 
             return Task.FromResult(true);
         }
 
-        public Task<bool> Handle(UpdateUserCommand message, CancellationToken cancellationToken)
+        public Task<bool> Handle(UpdateItemsProductWishCommand message, CancellationToken cancellationToken)
         {
             if (!message.IsValid())
             {
@@ -62,29 +57,18 @@ namespace ListWishes.Domain.CommandHandlers
                 return Task.FromResult(false);
             }
 
-            var user = new User(message.Id, message.Name, message.Email);
-            var existingUser = _userRepository.GetByEmail(user.Email);
-
-            if (existingUser != null && existingUser.Id != user.Id)
-            {
-                if (!existingUser.Equals(user))
-                {
-                    Bus.RaiseEvent(new DomainNotification(message.MessageType,"The user e-mail has already been taken."));
-                    return Task.FromResult(false);
-                }
-            }
-
-            _userRepository.Update(user);
+            var itemsProductWish = new ItemsProductWish(message.Id, message.WishId, message.ProductId);
+            _itemsProductWishRepository.Update(itemsProductWish);
 
             if (Commit())
             {
-                Bus.RaiseEvent(new UserUpdatedEvent(user.Id, user.Name, user.Email));
+                Bus.RaiseEvent(new ItemsProductWishUpdateEvent(itemsProductWish.Id));
             }
 
             return Task.FromResult(true);
         }
 
-        public Task<bool> Handle(RemoveUserCommand message, CancellationToken cancellationToken)
+        public Task<bool> Handle(RemoveItemsProductWishCommand message, CancellationToken cancellationToken)
         {
             if (!message.IsValid())
             {
@@ -92,11 +76,11 @@ namespace ListWishes.Domain.CommandHandlers
                 return Task.FromResult(false);
             }
 
-            _userRepository.Remove(message.Id);
+            _itemsProductWishRepository.Remove(message.Id);
 
             if (Commit())
             {
-                Bus.RaiseEvent(new UserRemovedEvent(message.Id));
+                Bus.RaiseEvent(new ItemsProductWishRemovedEvent(message.Id, message.ProductId));
             }
 
             return Task.FromResult(true);
@@ -104,7 +88,7 @@ namespace ListWishes.Domain.CommandHandlers
 
         public void Dispose()
         {
-            _userRepository.Dispose();
+            _itemsProductWishRepository.Dispose();
         }
     }
 }
